@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Euskara — Iris & Sebas</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: rgba(255,255,255,0.08);
+    --text: #f0ede6;
+    --muted: #8a8fa8;
+    --accent: #c8a96e;
+    --accent2: #6eb5c8;
+    --success: #6ec89a;
+    --error: #c86e6e;
+    --iris: #b893d6;
+    --sebas: #6eb5c8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  h1, h2, h3 { font-family: 'Fraunces', serif; font-weight: 600; }
+
+  .screen { display: none; width: 100%; max-width: 560px; padding: 2rem 1.25rem; min-height: 100vh; flex-direction: column; }
+  .screen.active { display: flex; }
+
+  /* LOGIN */
+  #screen-login { align-items: center; justify-content: center; gap: 2rem; }
+  .login-title { text-align: center; }
+  .login-title h1 { font-size: 2.8rem; color: var(--accent); }
+  .login-title p { color: var(--muted); margin-top: .5rem; font-size: .95rem; }
+  .login-cards { display: flex; gap: 1.25rem; width: 100%; }
+  .user-card {
+    flex: 1; background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: 18px; padding: 2rem 1rem; text-align: center;
+    cursor: pointer; transition: all .2s;
+  }
+  .user-card:hover { transform: translateY(-4px); border-color: rgba(255,255,255,0.2); }
+  .user-card.iris:hover { border-color: var(--iris); }
+  .user-card.sebas:hover { border-color: var(--sebas); }
+  .user-avatar {
+    width: 64px; height: 64px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Fraunces', serif; font-size: 1.6rem;
+    margin: 0 auto 1rem;
+  }
+  .iris .user-avatar { background: rgba(184,147,214,0.15); color: var(--iris); }
+  .sebas .user-avatar { background: rgba(110,181,200,0.15); color: var(--sebas); }
+  .user-card h2 { font-size: 1.3rem; }
+  .user-card p { color: var(--muted); font-size: .85rem; margin-top: .3rem; }
+
+  /* HEADER */
+  .app-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1.5rem; padding-bottom: 1rem;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .header-user { display: flex; align-items: center; gap: .6rem; }
+  .mini-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Fraunces', serif; font-size: .9rem;
+  }
+  .header-btns { display: flex; gap: .5rem; }
+  .btn-icon {
+    background: var(--surface); border: 0.5px solid var(--border);
+    color: var(--muted); border-radius: 10px; padding: .4rem .75rem;
+    cursor: pointer; font-size: .8rem; transition: all .2s;
+  }
+  .btn-icon:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+
+  /* TABS */
+  .tabs { display: flex; gap: .5rem; margin-bottom: 1.5rem; }
+  .tab {
+    flex: 1; padding: .6rem; text-align: center; border-radius: 10px;
+    border: 0.5px solid var(--border); background: transparent;
+    color: var(--muted); cursor: pointer; font-size: .85rem;
+    font-family: 'DM Sans', sans-serif; transition: all .2s;
+  }
+  .tab.active { background: var(--surface2); color: var(--text); border-color: rgba(255,255,255,0.15); }
+
+  .section-label {
+    font-size: .72rem; letter-spacing: .1em; color: var(--muted);
+    text-transform: uppercase; margin-bottom: .75rem; margin-top: 1.25rem;
+  }
+
+  /* TARJETAS DE PALABRAS NUEVAS */
+  .new-word-card {
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: 16px; padding: 1.25rem 1.5rem; margin-bottom: .75rem;
+  }
+  .word-eu { font-family: 'Fraunces', serif; font-size: 1.6rem; color: var(--accent); }
+  .word-es { color: var(--text); font-size: 1rem; margin-top: .3rem; }
+  .word-type { font-size: .75rem; color: var(--muted); margin-top: .2rem; }
+  .word-example { font-size: .82rem; color: var(--muted); margin-top: .6rem; font-style: italic; border-left: 2px solid var(--border); padding-left: .75rem; }
+
+  /* PRÁCTICA */
+  .practice-card {
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: 16px; padding: 1.5rem; margin-bottom: .75rem;
+  }
+  .practice-prompt { font-size: .8rem; color: var(--muted); margin-bottom: .4rem; }
+  .practice-word { font-family: 'Fraunces', serif; font-size: 1.8rem; color: var(--text); margin-bottom: 1rem; }
+  .practice-input {
+    width: 100%; background: var(--surface2); border: 0.5px solid var(--border);
+    border-radius: 10px; padding: .7rem 1rem; color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 1rem;
+    outline: none; transition: border-color .2s;
+  }
+  .practice-input:focus { border-color: var(--accent); }
+  .practice-input.correct { border-color: var(--success); background: rgba(110,200,154,0.06); }
+  .practice-input.wrong { border-color: var(--error); background: rgba(200,110,110,0.06); }
+  .feedback { margin-top: .6rem; font-size: .85rem; display: none; padding: .5rem .75rem; border-radius: 8px; }
+  .feedback.correct { display: block; color: var(--success); background: rgba(110,200,154,0.08); }
+  .feedback.wrong { display: block; color: var(--error); background: rgba(200,110,110,0.08); }
+  .check-btn {
+    width: 100%; margin-top: .75rem; padding: .7rem;
+    background: var(--accent); color: #0f1117; border: none;
+    border-radius: 10px; font-family: 'DM Sans', sans-serif;
+    font-size: .95rem; font-weight: 500; cursor: pointer; transition: opacity .2s;
+  }
+  .check-btn:hover { opacity: .85; }
+  .check-btn:disabled { opacity: .4; cursor: default; }
+  .next-btn {
+    width: 100%; margin-top: .5rem; padding: .6rem;
+    background: transparent; color: var(--muted); border: 0.5px solid var(--border);
+    border-radius: 10px; font-family: 'DM Sans', sans-serif;
+    font-size: .85rem; cursor: pointer; transition: all .2s; display: none;
+  }
+  .next-btn:hover { color: var(--text); }
+  .next-btn.visible { display: block; }
+
+  /* STATS */
+  #screen-stats { gap: 1rem; }
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+  .stat-box {
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: 14px; padding: 1rem 1.25rem;
+  }
+  .stat-label { font-size: .75rem; color: var(--muted); margin-bottom: .3rem; }
+  .stat-value { font-family: 'Fraunces', serif; font-size: 1.8rem; color: var(--accent); }
+  .stat-sub { font-size: .78rem; color: var(--muted); margin-top: .2rem; }
+  .hard-words-list { list-style: none; }
+  .hard-word-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: .7rem 0; border-bottom: 0.5px solid var(--border);
+  }
+  .hard-word-item:last-child { border-bottom: none; }
+  .hw-word { font-family: 'Fraunces', serif; color: var(--accent); }
+  .hw-meta { font-size: .78rem; color: var(--muted); }
+  .hw-errors { font-size: .78rem; color: var(--error); }
+  .progress-bar-wrap { background: var(--surface2); border-radius: 8px; height: 6px; margin-top: .4rem; }
+  .progress-bar { height: 6px; border-radius: 8px; background: var(--accent); transition: width .5s; }
+
+  /* DATE BADGE */
+  .date-badge {
+    display: inline-flex; align-items: center; gap: .4rem;
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: 8px; padding: .3rem .75rem; font-size: .78rem; color: var(--muted);
+    margin-bottom: 1rem;
+  }
+
+  /* COMPLETION */
+  .completion-box {
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: 16px; padding: 2rem; text-align: center; margin-top: 1rem;
+  }
+  .completion-box h2 { color: var(--accent); margin-bottom: .5rem; }
+  .completion-box p { color: var(--muted); font-size: .9rem; }
+  .score-display { font-family: 'Fraunces', serif; font-size: 2.5rem; color: var(--success); margin: .75rem 0; }
+
+  /* ALERTA DE VOCABULARIO */
+  .vocab-alert {
+    display: none;
+    border-radius: 14px; padding: 1rem 1.25rem; margin-bottom: 1.25rem; font-size: .85rem;
+  }
+  .vocab-alert.warning {
+    display: block;
+    background: rgba(200,169,110,0.08); border: 0.5px solid rgba(200,169,110,0.35);
+  }
+  .vocab-alert.urgent {
+    display: block;
+    background: rgba(200,110,110,0.08); border: 0.5px solid rgba(200,110,110,0.35);
+  }
+  .vocab-alert-title { font-weight: 500; margin-bottom: .4rem; }
+  .warning .vocab-alert-title { color: var(--accent); }
+  .urgent .vocab-alert-title { color: var(--error); }
+  .vocab-alert-body { color: var(--muted); line-height: 1.6; font-size: .82rem; }
+  .vocab-alert-days { font-family: 'Fraunces', serif; font-size: 1.3rem; margin: .3rem 0; }
+  .warning .vocab-alert-days { color: var(--accent); }
+  .urgent .vocab-alert-days { color: var(--error); }
+
+  /* PANTALLA PREVIA AL INICIO */
+  .countdown-box {
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: 20px; padding: 2rem 1.5rem; text-align: center; margin-top: 1rem;
+  }
+  .countdown-box h2 { color: var(--accent); font-size: 1.4rem; margin-bottom: .5rem; }
+  .countdown-number { font-family: 'Fraunces', serif; font-size: 3.5rem; color: var(--accent); margin: .75rem 0 .25rem; }
+  .countdown-box p { color: var(--muted); font-size: .88rem; line-height: 1.6; margin-top: .75rem; }
+
+  body.user-iris { --user-color: var(--iris); }
+  body.user-sebas { --user-color: var(--sebas); }
+  .iris .user-avatar, body.user-iris .mini-avatar { background: rgba(184,147,214,0.15); color: var(--iris); }
+  .sebas .user-avatar, body.user-sebas .mini-avatar { background: rgba(110,181,200,0.15); color: var(--sebas); }
+
+  @media (max-width: 480px) {
+    .login-cards { flex-direction: column; }
+    .word-eu { font-size: 1.3rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="screen-login" class="screen active">
+  <div class="login-title">
+    <h1>Euskara</h1>
+    <p>El idioma misterioso del País Vasco.<br>Aprendámoslo juntos.</p>
+  </div>
+  <div class="login-cards">
+    <div class="user-card iris" onclick="login('iris')">
+      <div class="user-avatar">I</div>
+      <h2>Iris</h2>
+      <p>Entrar como Iris</p>
+    </div>
+    <div class="user-card sebas" onclick="login('sebas')">
+      <div class="user-avatar">S</div>
+      <h2>Sebas</h2>
+      <p>Entrar como Sebas</p>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="screen-main" class="screen">
+  <div class="app-header">
+    <div class="header-user">
+      <div class="mini-avatar" id="header-avatar"></div>
+      <span id="header-name" style="font-size:.9rem;"></span>
+    </div>
+    <div class="header-btns">
+      <button class="btn-icon" onclick="showStats()">Mi progreso</button>
+      <button class="btn-icon" onclick="logout()">Salir</button>
+    </div>
+  </div>
+
+  <!-- ALERTA DE VOCABULARIO (se muestra/oculta por JS) -->
+  <div class="vocab-alert" id="vocab-alert">
+    <div class="vocab-alert-title" id="alert-title"></div>
+    <div class="vocab-alert-body">
+      <div class="vocab-alert-days" id="alert-days"></div>
+      <span id="alert-body"></span>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" id="tab-hoy" onclick="switchTab('hoy')">Palabras de hoy</button>
+    <button class="tab" id="tab-practica" onclick="switchTab('practica')">Práctica</button>
+  </div>
+
+  <!-- TAB HOY -->
+  <div id="tab-content-hoy">
+    <div class="date-badge" id="date-display"></div>
+    <div id="main-content"></div>
+  </div>
+
+  <!-- TAB PRACTICA -->
+  <div id="tab-content-practica" style="display:none;">
+    <div id="practice-container"></div>
+    <div id="completion-container" style="display:none;">
+      <div class="completion-box">
+        <h2>¡Sesión completa!</h2>
+        <div class="score-display" id="final-score"></div>
+        <p id="final-msg"></p>
+        <button class="check-btn" style="margin-top:1.25rem;" onclick="switchTab('hoy')">Ver palabras de hoy</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div id="screen-stats" class="screen">
+  <div class="app-header">
+    <div class="header-user">
+      <div class="mini-avatar" id="stats-avatar"></div>
+      <span id="stats-name" style="font-size:.9rem;font-family:'Fraunces',serif;"></span>
+    </div>
+    <button class="btn-icon" onclick="showMain()">Volver</button>
+  </div>
+  <h2 style="font-size:1.5rem;margin-bottom:1rem;">Mi progreso</h2>
+  <div class="stats-grid">
+    <div class="stat-box">
+      <div class="stat-label">Palabras practicadas</div>
+      <div class="stat-value" id="stat-total">0</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Precisión general</div>
+      <div class="stat-value" id="stat-accuracy">—</div>
+      <div class="progress-bar-wrap"><div class="progress-bar" id="stat-bar" style="width:0%"></div></div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Racha actual</div>
+      <div class="stat-value" id="stat-streak">0</div>
+      <div class="stat-sub">días seguidos</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Palabras dominadas</div>
+      <div class="stat-value" id="stat-mastered">0</div>
+      <div class="stat-sub">3+ aciertos seguidos</div>
+    </div>
+  </div>
+  <div class="section-label" style="margin-top:1.5rem;">Palabras que más te cuestan</div>
+  <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:16px;padding:1rem 1.25rem;">
+    <ul class="hard-words-list" id="hard-words-list">
+      <li style="color:var(--muted);font-size:.85rem;">Aún sin datos — ¡practica para ver tus estadísticas!</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// FECHA DE INICIO Y CONFIGURACIÓN
+// ============================================================
+// Fecha de inicio del programa: viernes 05 de junio de 2026
+const START_DATE = new Date(2026, 5, 5); // mes es 0-indexado: 5 = junio
+const WORDS_PER_DAY = 3;
+// Aviso cuando queden estos días o menos de vocabulario
+const WARN_DAYS = 10;
+const URGENT_DAYS = 3;
+
+// ============================================================
+// VOCABULARIO — BLOQUE 1 (60 palabras, días 1–20)
+// ============================================================
+const VOCAB = [
+  // SALUDOS Y BÁSICOS
+  {eu:"Kaixo", es:"Hola", type:"saludo", ex:"Kaixo! Zer moduz? — ¡Hola! ¿Qué tal?"},
+  {eu:"Agur", es:"Adiós", type:"saludo", ex:"Agur! Bihar arte. — ¡Adiós! Hasta mañana."},
+  {eu:"Eskerrik asko", es:"Muchas gracias", type:"expresión", ex:"Eskerrik asko zure laguntzagatik. — Gracias por tu ayuda."},
+  {eu:"Mesedez", es:"Por favor", type:"expresión", ex:"Mesedez, ekarri ura. — Por favor, trae agua."},
+  {eu:"Bai", es:"Sí", type:"básico", ex:"Bai, ados nago. — Sí, estoy de acuerdo."},
+  {eu:"Ez", es:"No", type:"básico", ex:"Ez, eskerrik asko. — No, gracias."},
+  {eu:"Barkatu", es:"Perdón / Disculpa", type:"expresión", ex:"Barkatu, ez nuen ulertu. — Perdón, no entendí."},
+  {eu:"Egun on", es:"Buenos días", type:"saludo", ex:"Egun on! Ondo lo egin duzu? — ¡Buenos días! ¿Dormiste bien?"},
+  {eu:"Arratsalde on", es:"Buenas tardes", type:"saludo", ex:"Arratsalde on! Zer berri? — ¡Buenas tardes! ¿Qué hay de nuevo?"},
+  {eu:"Gabon", es:"Buenas noches", type:"saludo", ex:"Gabon! Amets onak. — ¡Buenas noches! Dulces sueños."},
+  // PERSONAS Y FAMILIA
+  {eu:"Gizona", es:"El hombre / El marido", type:"sustantivo", ex:"Gizona etxean dago. — El marido está en casa."},
+  {eu:"Emakumea", es:"La mujer / La esposa", type:"sustantivo", ex:"Emakumea oso adimentsua da. — La mujer es muy inteligente."},
+  {eu:"Umea", es:"El niño / La niña", type:"sustantivo", ex:"Umea parkean dago. — El niño está en el parque."},
+  {eu:"Aita", es:"Papá / Padre", type:"sustantivo", ex:"Nire aita sukaldaria da. — Mi papá es cocinero."},
+  {eu:"Ama", es:"Mamá / Madre", type:"sustantivo", ex:"Nire ama medikua da. — Mi mamá es médica."},
+  {eu:"Laguna", es:"El amigo / La amiga", type:"sustantivo", ex:"Nire laguna Madrilen bizi da. — Mi amigo vive en Madrid."},
+  // VERBOS BÁSICOS
+  {eu:"Egon", es:"Estar / Quedarse", type:"verbo", ex:"Etxean egon nahi dut. — Quiero quedarme en casa."},
+  {eu:"Joan", es:"Ir", type:"verbo", ex:"Dendara joan nahi dut. — Quiero ir a la tienda."},
+  {eu:"Etorri", es:"Venir", type:"verbo", ex:"Nire etxera etorri? — ¿Vienes a mi casa?"},
+  {eu:"Jan", es:"Comer", type:"verbo", ex:"Zer jan nahi duzu? — ¿Qué quieres comer?"},
+  {eu:"Edan", es:"Beber", type:"verbo", ex:"Kafea edan nahi dut. — Quiero beber café."},
+  {eu:"Ikasi", es:"Aprender / Estudiar", type:"verbo", ex:"Euskara ikasi nahi dut. — Quiero aprender euskera."},
+  {eu:"Hitz egin", es:"Hablar", type:"verbo", ex:"Euskaraz hitz egin nahi dut. — Quiero hablar en euskera."},
+  {eu:"Ulertu", es:"Entender", type:"verbo", ex:"Ez dut ulertzen. — No entiendo."},
+  {eu:"Entzun", es:"Escuchar", type:"verbo", ex:"Musika entzutea gustatzen zait. — Me gusta escuchar música."},
+  {eu:"Ikusi", es:"Ver", type:"verbo", ex:"Pelikula bat ikusi nahi dut. — Quiero ver una película."},
+  {eu:"Erosi", es:"Comprar", type:"verbo", ex:"Ogia erosi behar dut. — Tengo que comprar pan."},
+  {eu:"Lan egin", es:"Trabajar", type:"verbo", ex:"Egunero lan egiten dut. — Trabajo todos los días."},
+  // LUGARES
+  {eu:"Etxea", es:"La casa", type:"lugar", ex:"Etxea polita da. — La casa es bonita."},
+  {eu:"Denda", es:"La tienda", type:"lugar", ex:"Denda itxita dago. — La tienda está cerrada."},
+  {eu:"Jatetxea", es:"El restaurante", type:"lugar", ex:"Jatetxe hori oso ona da. — Ese restaurante es muy bueno."},
+  {eu:"Parkea", es:"El parque", type:"lugar", ex:"Parkean ibiltzea gustatzen zait. — Me gusta caminar en el parque."},
+  {eu:"Kale", es:"La calle", type:"lugar", ex:"Kale hau oso zabala da. — Esta calle es muy ancha."},
+  // TIEMPO
+  {eu:"Gaur", es:"Hoy", type:"tiempo", ex:"Gaur eguraldia ona da. — Hoy el tiempo es bueno."},
+  {eu:"Bihar", es:"Mañana (día siguiente)", type:"tiempo", ex:"Bihar ikusiko dugu. — Mañana lo veremos."},
+  {eu:"Atzo", es:"Ayer", type:"tiempo", ex:"Atzo film on bat ikusi nuen. — Ayer vi una buena película."},
+  {eu:"Orain", es:"Ahora", type:"tiempo", ex:"Orain zer egin nahi duzu? — ¿Qué quieres hacer ahora?"},
+  {eu:"Gero", es:"Después / Luego", type:"tiempo", ex:"Gero hitz egingo dugu. — Luego hablamos."},
+  // ADJETIVOS
+  {eu:"Ona", es:"Bueno/a", type:"adjetivo", ex:"Eguraldia ona da. — El tiempo es bueno."},
+  {eu:"Txarra", es:"Malo/a", type:"adjetivo", ex:"Film txarra zen. — La película era mala."},
+  {eu:"Handia", es:"Grande", type:"adjetivo", ex:"Etxe handia daukat. — Tengo una casa grande."},
+  {eu:"Txikia", es:"Pequeño/a", type:"adjetivo", ex:"Txakur txikia daukat. — Tengo un perro pequeño."},
+  {eu:"Ederrak", es:"Bonito/a / Hermoso/a", type:"adjetivo", ex:"Hiri eder honetan bizi naiz. — Vivo en esta ciudad hermosa."},
+  {eu:"Zaharra", es:"Viejo/a / Antiguo/a", type:"adjetivo", ex:"Liburu zaharra da. — Es un libro viejo."},
+  {eu:"Berria", es:"Nuevo/a", type:"adjetivo", ex:"Auto berria erosi dut. — He comprado un auto nuevo."},
+  {eu:"Azkarra", es:"Rápido/a / Listo/a", type:"adjetivo", ex:"Ikasle azkarra zara. — Eres un estudiante listo."},
+  {eu:"Polita", es:"Lindo/a / Guapo/a", type:"adjetivo", ex:"Argazki polita! — ¡Foto linda!"},
+  {eu:"Nekatuta", es:"Cansado/a", type:"adjetivo", ex:"Oso nekatuta nago. — Estoy muy cansado/a."},
+  // COMIDA Y BEBIDA
+  {eu:"Ogia", es:"El pan", type:"comida", ex:"Ogia freskoa nahi dut. — Quiero pan fresco."},
+  {eu:"Ura", es:"El agua", type:"comida", ex:"Ura edaten dut egunero. — Bebo agua todos los días."},
+  {eu:"Kafea", es:"El café", type:"comida", ex:"Goizean kafea edaten dut. — Por la mañana tomo café."},
+  {eu:"Ardoa", es:"El vino", type:"comida", ex:"Ardo gorria maite dut. — Me gusta el vino tinto."},
+  {eu:"Sagarra", es:"La manzana", type:"comida", ex:"Sagarra jan dut. — He comido una manzana."},
+  // NÚMEROS
+  {eu:"Bat", es:"Uno", type:"número", ex:"Bat, bi, hiru... — Uno, dos, tres..."},
+  {eu:"Bi", es:"Dos", type:"número", ex:"Bi kafe nahi ditut. — Quiero dos cafés."},
+  {eu:"Hiru", es:"Tres", type:"número", ex:"Hiru lagun etorri dira. — Han venido tres amigos."},
+  {eu:"Asko", es:"Mucho/a / Muchos/as", type:"cantidad", ex:"Asko maite zaitut. — Te quiero mucho."},
+  {eu:"Gutxi", es:"Poco/a / Pocos/as", type:"cantidad", ex:"Denbora gutxi daukat. — Tengo poco tiempo."},
+  // PREGUNTAS
+  {eu:"Zer", es:"Qué", type:"pregunta", ex:"Zer nahi duzu? — ¿Qué quieres?"},
+  {eu:"Non", es:"Dónde", type:"pregunta", ex:"Non bizi zara? — ¿Dónde vives?"},
+  {eu:"Nork", es:"Quién", type:"pregunta", ex:"Nork egin du hori? — ¿Quién hizo eso?"},
+  {eu:"Noiz", es:"Cuándo", type:"pregunta", ex:"Noiz etorriko zara? — ¿Cuándo vendrás?"},
+  {eu:"Zergatik", es:"Por qué", type:"pregunta", ex:"Zergatik ez zara etorri? — ¿Por qué no viniste?"},
+];
+
+// ============================================================
+// ESTADO
+// ============================================================
+let currentUser = null;
+let practiceQueue = [];
+let practiceIndex = 0;
+let sessionCorrect = 0;
+let sessionTotal = 0;
+
+// ============================================================
+// LÓGICA DE DÍAS
+// ============================================================
+
+// Cuántos días han pasado desde START_DATE hasta hoy (sin contar horas)
+function getDayNumber() {
+  const today = new Date();
+  const t = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
+  const s = Date.UTC(START_DATE.getFullYear(), START_DATE.getMonth(), START_DATE.getDate());
+  return Math.floor((t - s) / 86400000); // puede ser negativo antes del inicio
+}
+
+// Cuántos días de vocabulario nuevo quedan desde hoy
+function getDaysRemaining() {
+  const dayNum = getDayNumber();
+  const totalDays = Math.floor(VOCAB.length / WORDS_PER_DAY);
+  return totalDays - dayNum;
+}
+
+// Las 3 palabras nuevas de un día concreto (por índice de día)
+function getWordsForDay(dayIndex) {
+  const start = (dayIndex * WORDS_PER_DAY) % VOCAB.length;
+  const result = [];
+  for (let i = 0; i < WORDS_PER_DAY; i++) {
+    result.push(VOCAB[(start + i) % VOCAB.length]);
+  }
+  return result;
+}
+
+// Palabras de repaso: las de días anteriores, priorizando errores frecuentes
+function getReviewWords(user) {
+  const dayNum = getDayNumber();
+  if (dayNum < 1) return [];
+  const store = getStore(user);
+  const history = store.history;
+
+  // Recopilar todas las palabras ya vistas (días anteriores)
+  const seen = [];
+  for (let d = 0; d < dayNum && d < Math.floor(VOCAB.length / WORDS_PER_DAY); d++) {
+    seen.push(...getWordsForDay(d));
+  }
+  if (seen.length === 0) return [];
+
+  // Peso: más errores = más probabilidad de aparecer, con algo de aleatoriedad
+  const seed = getDayNumber() * 31 + 17;
+  let s = seed;
+  function rand() {
+    s = (s * 16807) % 2147483647;
+    return (s - 1) / 2147483646;
+  }
+
+  const weighted = seen.map(w => {
+    const h = history[w.eu] || { correct: 0, wrong: 0 };
+    const errorWeight = (h.wrong || 0) * 3 + 1;
+    return { word: w, weight: errorWeight * rand() };
+  });
+  weighted.sort((a, b) => b.weight - a.weight);
+  return weighted.slice(0, 3).map(x => x.word);
+}
+
+// ============================================================
+// STORAGE
+// ============================================================
+function getStore(user) {
+  const raw = localStorage.getItem('euskera_' + user);
+  if (!raw) return { history: {}, streak: 0, lastDay: null };
+  return JSON.parse(raw);
+}
+function saveStore(user, data) {
+  localStorage.setItem('euskera_' + user, JSON.stringify(data));
+}
+
+// ============================================================
+// FECHA LEGIBLE
+// ============================================================
+function getTodayDate() {
+  const d = new Date();
+  const dias = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  return dias[d.getDay()] + ', ' + d.getDate() + ' de ' + meses[d.getMonth()];
+}
+
+// ============================================================
+// NAVEGACIÓN
+// ============================================================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function login(user) {
+  currentUser = user;
+  document.body.className = 'user-' + user;
+  const name = user === 'iris' ? 'Iris' : 'Sebas';
+  document.getElementById('header-avatar').textContent = name[0];
+  document.getElementById('header-name').textContent = name;
+  document.getElementById('stats-avatar').textContent = name[0];
+  document.getElementById('stats-name').textContent = name;
+  updateStreak(user);
+  checkVocabAlert();
+  renderToday();
+  renderPractice();
+  showScreen('screen-main');
+}
+
+function logout() { currentUser = null; showScreen('screen-login'); }
+function showStats() { renderStats(); showScreen('screen-stats'); }
+function showMain() { showScreen('screen-main'); }
+
+function switchTab(tab) {
+  document.getElementById('tab-content-hoy').style.display = tab === 'hoy' ? 'block' : 'none';
+  document.getElementById('tab-content-practica').style.display = tab === 'practica' ? 'block' : 'none';
+  document.getElementById('tab-hoy').className = 'tab' + (tab === 'hoy' ? ' active' : '');
+  document.getElementById('tab-practica').className = 'tab' + (tab === 'practica' ? ' active' : '');
+}
+
+// ============================================================
+// ALERTA DE VOCABULARIO
+// ============================================================
+function checkVocabAlert() {
+  const remaining = getDaysRemaining();
+  const alertEl = document.getElementById('vocab-alert');
+  const titleEl = document.getElementById('alert-title');
+  const daysEl = document.getElementById('alert-days');
+  const bodyEl = document.getElementById('alert-body');
+
+  alertEl.className = 'vocab-alert'; // reset
+
+  if (remaining <= URGENT_DAYS && remaining >= 0) {
+    alertEl.classList.add('urgent');
+    titleEl.textContent = '¡Urgente! El vocabulario se acaba';
+    daysEl.textContent = remaining === 0 ? '¡Hoy es el último día!' : 'Quedan ' + remaining + ' día' + (remaining === 1 ? '' : 's');
+    bodyEl.textContent = 'Volvé al chat con Claude para cargar el siguiente bloque de palabras antes de que se agoten.';
+  } else if (remaining <= WARN_DAYS && remaining >= 0) {
+    alertEl.classList.add('warning');
+    titleEl.textContent = 'El vocabulario se está acabando';
+    daysEl.textContent = 'Quedan ' + remaining + ' días de palabras nuevas';
+    bodyEl.textContent = 'Pronto necesitarán cargar más vocabulario. Volvé al chat con Claude cuando puedan.';
+  }
+}
+
+// ============================================================
+// RENDERIZAR PALABRAS DE HOY
+// ============================================================
+function renderToday() {
+  const dayNum = getDayNumber();
+  document.getElementById('date-display').textContent = getTodayDate();
+  const mc = document.getElementById('main-content');
+  mc.innerHTML = '';
+
+  // Antes del inicio
+  if (dayNum < 0) {
+    const daysToGo = Math.abs(dayNum);
+    const startStr = 'viernes 5 de junio de 2026';
+    mc.innerHTML = `
+      <div class="countdown-box">
+        <h2>¡El programa empieza pronto!</h2>
+        <div class="countdown-number">${daysToGo}</div>
+        <div style="color:var(--muted);font-size:.85rem;">día${daysToGo !== 1 ? 's' : ''} para el inicio</div>
+        <p>El ${startStr} empiezan sus primeras 3 palabras en euskera.<br>
+        Mientras tanto, pueden explorar la app y preparar su racha.</p>
+      </div>`;
+    return;
+  }
+
+  // Palabras nuevas del día
+  const newWords = getWordsForDay(dayNum);
+  const reviewWords = getReviewWords(currentUser);
+
+  let html = '<div class="section-label">✦ 3 palabras nuevas hoy</div>';
+  newWords.forEach(w => {
+    html += `
+      <div class="new-word-card">
+        <div class="word-eu">${w.eu}</div>
+        <div class="word-es">${w.es}</div>
+        <div class="word-type">${w.type}</div>
+        ${w.ex ? `<div class="word-example">${w.ex}</div>` : ''}
+      </div>`;
+  });
+
+  if (reviewWords.length > 0) {
+    html += '<div class="section-label">↺ 3 palabras para repasar</div>';
+    reviewWords.forEach(w => {
+      html += `
+        <div class="new-word-card" style="border-color:rgba(200,169,110,0.2);">
+          <div class="word-eu" style="font-size:1.2rem;">${w.eu}</div>
+          <div class="word-type">${w.type} · practica esto en la sección "Práctica"</div>
+        </div>`;
+    });
+  } else {
+    html += `
+      <div class="section-label">↺ Repaso</div>
+      <div class="new-word-card" style="border-color:rgba(200,169,110,0.1);">
+        <div style="color:var(--muted);font-size:.85rem;">Es el primer día — aún no hay palabras anteriores para repasar. ¡Mañana sí!</div>
+      </div>`;
+  }
+
+  html += `<button class="check-btn" style="margin-top:1rem;" onclick="switchTab('practica')">Ir a practicar →</button>`;
+  mc.innerHTML = html;
+}
+
+// ============================================================
+// PRÁCTICA
+// ============================================================
+function buildPracticeQueue() {
+  const dayNum = getDayNumber();
+  if (dayNum < 0) return [];
+  const newWords = getWordsForDay(dayNum);
+  const reviewWords = getReviewWords(currentUser);
+
+  const seed = dayNum * 13 + 5;
+  let s = seed;
+  function rand() { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }
+
+  const queue = [];
+  newWords.forEach(w => {
+    queue.push({ word: w, direction: 'es_to_eu' }); // nuevas: castellano → euskera
+  });
+  reviewWords.forEach(w => {
+    queue.push({ word: w, direction: rand() > 0.5 ? 'eu_to_es' : 'es_to_eu' });
+  });
+  return queue;
+}
+
+function renderPractice() {
+  practiceQueue = buildPracticeQueue();
+  practiceIndex = 0;
+  sessionCorrect = 0;
+  sessionTotal = 0;
+  document.getElementById('completion-container').style.display = 'none';
+  document.getElementById('practice-container').style.display = 'block';
+
+  const dayNum = getDayNumber();
+  if (dayNum < 0) {
+    document.getElementById('practice-container').innerHTML = `
+      <div class="completion-box">
+        <h2>Todavía no empezamos</h2>
+        <p>La práctica arranca el viernes 5 de junio de 2026.<br>¡Ya falta poco!</p>
+      </div>`;
+    return;
+  }
+  showPracticeCard();
+}
+
+function showPracticeCard() {
+  const pc = document.getElementById('practice-container');
+  if (practiceIndex >= practiceQueue.length) { showCompletion(); return; }
+
+  const item = practiceQueue[practiceIndex];
+  const isEuToEs = item.direction === 'eu_to_es';
+  const prompt = isEuToEs ? 'Traduce al castellano:' : 'Escribe en euskera:';
+  const display = isEuToEs ? item.word.eu : item.word.es;
+  const progress = (practiceIndex + 1) + ' / ' + practiceQueue.length;
+
+  pc.innerHTML = `
+    <div style="font-size:.75rem;color:var(--muted);margin-bottom:.75rem;letter-spacing:.05em;">${progress}</div>
+    <div class="practice-card">
+      <div class="practice-prompt">${prompt}</div>
+      <div class="practice-word">${display}</div>
+      ${item.word.type === 'verbo' ? '<div style="font-size:.75rem;color:var(--muted);margin-bottom:.75rem;">verbo en infinitivo</div>' : ''}
+      <input class="practice-input" id="answer-input" type="text" placeholder="Escribe tu respuesta..."
+        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+        onkeydown="if(event.key==='Enter'){checkAnswer()}" />
+      <div class="feedback" id="feedback-box"></div>
+      <button class="check-btn" id="check-btn" onclick="checkAnswer()">Comprobar</button>
+      <button class="next-btn" id="next-btn" onclick="nextCard()">Siguiente palabra →</button>
+    </div>`;
+
+  setTimeout(() => { const inp = document.getElementById('answer-input'); if (inp) inp.focus(); }, 100);
+}
+
+function normalize(str) {
+  return str.trim().toLowerCase()
+    .replace(/á/g,'a').replace(/é/g,'e').replace(/í/g,'i')
+    .replace(/ó/g,'o').replace(/ú/g,'u').replace(/ü/g,'u');
+}
+
+function checkAnswer() {
+  const inp = document.getElementById('answer-input');
+  const checkBtn = document.getElementById('check-btn');
+  const nextBtn = document.getElementById('next-btn');
+  const fb = document.getElementById('feedback-box');
+  if (!inp || checkBtn.disabled) return;
+
+  const item = practiceQueue[practiceIndex];
+  const isEuToEs = item.direction === 'eu_to_es';
+  const correctRaw = isEuToEs ? item.word.es : item.word.eu;
+  const alternatives = correctRaw.split('/').map(a => normalize(a.trim()));
+  const userAnswer = normalize(inp.value);
+  const isCorrect = alternatives.some(alt => userAnswer === alt || alt.startsWith(userAnswer) && userAnswer.length >= 3);
+
+  checkBtn.disabled = true;
+  inp.disabled = true;
+  nextBtn.classList.add('visible');
+  sessionTotal++;
+
+  const store = getStore(currentUser);
+  if (!store.history[item.word.eu]) store.history[item.word.eu] = { correct: 0, wrong: 0, streak: 0 };
+
+  if (isCorrect) {
+    inp.classList.add('correct');
+    store.history[item.word.eu].correct++;
+    store.history[item.word.eu].streak = (store.history[item.word.eu].streak || 0) + 1;
+    sessionCorrect++;
+    fb.className = 'feedback correct';
+    fb.textContent = '¡Correcto! ' + (item.word.ex ? item.word.ex.split('—')[0].trim() : '');
+  } else {
+    inp.classList.add('wrong');
+    store.history[item.word.eu].wrong++;
+    store.history[item.word.eu].streak = 0;
+    fb.className = 'feedback wrong';
+    fb.innerHTML = 'La respuesta es: <strong>' + correctRaw + '</strong><br><span style="font-size:.8rem;opacity:.8">' + (item.word.ex || '') + '</span>';
+  }
+  saveStore(currentUser, store);
+}
+
+function nextCard() { practiceIndex++; showPracticeCard(); }
+
+function showCompletion() {
+  document.getElementById('practice-container').style.display = 'none';
+  const cc = document.getElementById('completion-container');
+  cc.style.display = 'block';
+  const pct = sessionTotal > 0 ? Math.round((sessionCorrect / sessionTotal) * 100) : 0;
+  document.getElementById('final-score').textContent = sessionCorrect + '/' + sessionTotal + ' (' + pct + '%)';
+  let msg = '';
+  if (pct === 100) msg = '¡Perfecto! Ningún error hoy. Son increíbles.';
+  else if (pct >= 80) msg = '¡Muy bien! Van dominando el euskera paso a paso.';
+  else if (pct >= 50) msg = 'Bien encaminados. Las que fallaron van a aparecer más seguido hasta dominarlas.';
+  else msg = 'Sin presión — el euskera es difícil y aprender lleva tiempo. Mañana lo intentamos de nuevo.';
+  document.getElementById('final-msg').textContent = msg;
+}
+
+// ============================================================
+// RACHA
+// ============================================================
+function updateStreak(user) {
+  const store = getStore(user);
+  const today = new Date().toDateString();
+  if (store.lastDay === today) return;
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  store.streak = store.lastDay === yesterday.toDateString() ? (store.streak || 0) + 1 : 1;
+  store.lastDay = today;
+  saveStore(user, store);
+}
+
+// ============================================================
+// ESTADÍSTICAS
+// ============================================================
+function renderStats() {
+  const store = getStore(currentUser);
+  const history = store.history;
+  let totalCorrect = 0, totalWrong = 0, mastered = 0;
+
+  const entries = Object.entries(history).map(([eu, h]) => {
+    totalCorrect += h.correct || 0;
+    totalWrong += h.wrong || 0;
+    if ((h.streak || 0) >= 3) mastered++;
+    return { eu, correct: h.correct || 0, wrong: h.wrong || 0, streak: h.streak || 0 };
+  });
+
+  const total = totalCorrect + totalWrong;
+  const accuracy = total > 0 ? Math.round((totalCorrect / total) * 100) : 0;
+
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-accuracy').textContent = total > 0 ? accuracy + '%' : '—';
+  document.getElementById('stat-bar').style.width = accuracy + '%';
+  document.getElementById('stat-streak').textContent = store.streak || 0;
+  document.getElementById('stat-mastered').textContent = mastered;
+
+  const hard = entries.filter(e => e.wrong > 0).sort((a, b) => b.wrong - a.wrong).slice(0, 5);
+  const list = document.getElementById('hard-words-list');
+  if (hard.length === 0) {
+    list.innerHTML = '<li style="color:var(--muted);font-size:.85rem;">¡Todavía sin errores registrados!</li>';
+  } else {
+    list.innerHTML = hard.map(e => {
+      const word = VOCAB.find(v => v.eu === e.eu);
+      return `<li class="hard-word-item">
+        <div><div class="hw-word">${e.eu}</div><div class="hw-meta">${word ? word.es : ''}</div></div>
+        <div class="hw-errors">${e.wrong} ${e.wrong === 1 ? 'error' : 'errores'}</div>
+      </li>`;
+    }).join('');
+  }
+}
+</script>
+</body>
+</html>
